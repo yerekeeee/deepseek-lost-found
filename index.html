@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lost&Found Transport — Алматы</title>
+<style>
+:root{
+  --bg:#F8FAFC; --white:#FFFFFF;
+  --lost:#EF4444; --lost-bg:#FEF2F2;
+  --found:#10B981; --found-bg:#ECFDF5;
+  --vip:#F59E0B; --vip-bg:#FFFBEB;
+  --blue:#2563EB; --blue-dark:#1D4ED8;
+  --text:#0F172A; --text-2:#475569; --text-3:#94A3B8;
+  --border:#E2E8F0;
+  --shadow:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);
+  --shadow-lg:0 10px 25px -5px rgba(15,23,42,.12),0 8px 10px -6px rgba(15,23,42,.05);
+  --radius:14px; --radius-lg:20px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:#CBD5E1; color:var(--text); line-height:1.5; font-size:15px;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit}
+input,textarea,select{font-family:inherit; font-size:15px; color:inherit}
+.app{
+  max-width:480px; margin:0 auto; min-height:100vh;
+  background:var(--bg); position:relative; display:flex; flex-direction:column;
+  box-shadow:0 0 40px rgba(15,23,42,.12);
+}
+
+/* ---------- SCREENS ---------- */
+.screen{display:none; flex-direction:column; flex:1; min-height:100vh}
+.screen.active{display:flex}
+
+/* ---------- HEADER ---------- */
+.app-header{
+  position:sticky; top:0; z-index:20;
+  background:rgba(255,255,255,.92); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 16px; display:flex; align-items:center; gap:10px;
+}
+.header-title{font-weight:600; font-size:16px; flex:1; text-align:center}
+.icon-btn{
+  width:40px;height:40px;border-radius:12px; display:flex;align-items:center;justify-content:center;
+  color:var(--text-2); transition:background .15s;
+}
+.icon-btn:active{background:var(--border)}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;letter-spacing:-.2px}
+.brand-mark{
+  width:32px;height:32px;border-radius:10px;
+  background:linear-gradient(135deg,#2563EB,#1D4ED8);
+  display:flex;align-items:center;justify-content:center;color:#fff;
+}
+.city-btn{
+  display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text-2);
+  padding:6px 10px;border-radius:10px;background:#F1F5F9;font-weight:500;
+}
+.match-btn{
+  position:relative; width:40px;height:40px;border-radius:12px;
+  background:var(--vip-bg); color:var(--vip);
+  display:flex;align-items:center;justify-content:center;
+}
+.match-badge{
+  position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;
+  background:var(--lost); color:#fff; font-size:11px;font-weight:700;
+  border-radius:9px; display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;
+}
+
+/* ---------- HOME ---------- */
+.home-main{flex:1; padding:16px; display:flex; flex-direction:column; gap:16px}
+.hero-actions{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.action-btn{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  padding:20px 12px; border-radius:var(--radius-lg); font-weight:700; font-size:15px;
+  transition:transform .12s, box-shadow .12s;
+}
+.action-btn:active{transform:scale(.97)}
+.action-btn.lost{background:var(--lost); color:#fff; box-shadow:0 8px 20px -8px rgba(239,68,68,.6)}
+.action-btn.found{background:var(--found); color:#fff; box-shadow:0 8px 20px -8px rgba(16,185,129,.6)}
+.action-btn .sub{font-size:11px;font-weight:500;opacity:.85}
+
+.filters-block{display:flex;flex-direction:column;gap:10px}
+.chip-row{display:flex;gap:8px;overflow-x:auto; padding-bottom:2px; scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0; padding:8px 14px; border-radius:100px; font-size:13px; font-weight:500;
+  background:#fff; border:1px solid var(--border); color:var(--text-2); transition:all .15s;
+  display:flex; align-items:center; gap:6px;
+}
+.chip.active{background:var(--text); color:#fff; border-color:var(--text)}
+.chip.lost.active{background:var(--lost); border-color:var(--lost)}
+.chip.found.active{background:var(--found); border-color:var(--found)}
+
+.search-box{
+  position:relative; display:flex; align-items:center;
+  background:#fff; border:1px solid var(--border); border-radius:12px; padding:0 12px;
+}
+.search-box svg{color:var(--text-3);flex-shrink:0}
+.search-box input{
+  flex:1; border:none; outline:none; background:transparent; padding:12px 10px; font-size:14px;
+}
+
+.feed{display:flex; flex-direction:column; gap:10px}
+.feed-label{font-size:12px; font-weight:600; color:var(--text-3); text-transform:uppercase; letter-spacing:.5px; margin:6px 0 2px}
+
+/* ---------- AD CARD ---------- */
+.ad-card{
+  background:#fff; border-radius:var(--radius); padding:14px;
+  border:1px solid var(--border); box-shadow:var(--shadow);
+  display:flex; flex-direction:column; gap:8px; position:relative;
+  transition:transform .12s, box-shadow .15s;
+  cursor:pointer;
+}
+.ad-card:active{transform:scale(.99)}
+.ad-card.status-vip{border:2px solid var(--vip); box-shadow:0 4px 16px -6px rgba(245,158,11,.4); background:linear-gradient(180deg,#FFFDF5,#fff)}
+.ad-card.status-top{border:2px solid var(--vip); background:linear-gradient(135deg,#FFFBEB,#fff); box-shadow:0 4px 18px -6px rgba(245,158,11,.5)}
+.ad-top-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ad-type{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;
+}
+.ad-type.lost{background:var(--lost-bg);color:var(--lost)}
+.ad-type.found{background:var(--found-bg);color:var(--found)}
+.badge{
+  font-size:10px;font-weight:800;letter-spacing:.4px;padding:4px 8px;border-radius:6px;
+  text-transform:uppercase;
+}
+.badge-top{background:var(--vip);color:#fff}
+.badge-vip{background:var(--vip-bg);color:#B45309;border:1px solid var(--vip)}
+.badge-push{background:var(--blue);color:#fff}
+.ad-title{font-size:15px;font-weight:600;line-height:1.35; color:var(--text)}
+.ad-desc{font-size:13px;color:var(--text-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ad-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--text-3);margin-top:2px}
+.ad-meta span{display:inline-flex;align-items:center;gap:4px}
+
+/* ---------- FOOTER ---------- */
+.app-footer{
+  padding:16px; border-top:1px solid var(--border); background:#fff;
+  display:flex; flex-direction:column; gap:8px; align-items:center;
+}
+.reset-btn{
+  display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3);
+  padding:6px 12px;border-radius:8px;
+}
+.reset-btn:active{background:var(--bg)}
+.footer-note{font-size:11px;color:var(--text-3);text-align:center;line-height:1.4}
+
+/* ---------- FORM ---------- */
+.progress-track{height:3px;background:var(--border);position:relative}
+.progress-fill{height:100%;background:var(--blue);width:33.33%;transition:width .3s ease}
+.form-main{flex:1; padding:16px; padding-bottom:100px}
+.form-step{display:none}
+.form-step.active{display:block; animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.step-title{font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:6px}
+.step-sub{font-size:13px;color:var(--text-2);margin-bottom:20px}
+.step-h3{font-size:14px;font-weight:600;margin:22px 0 12px}
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  padding:18px;border-radius:var(--radius);border:2px solid var(--border);background:#fff;
+  font-weight:600;font-size:14px;color:var(--text-2);transition:all .15s;
+}
+.type-btn.lost.active{border-color:var(--lost);background:var(--lost-bg);color:var(--lost)}
+.type-btn.found.active{border-color:var(--found);background:var(--found-bg);color:var(--found)}
+
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cat-btn{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  padding:14px 8px;border-radius:12px;border:1.5px solid var(--border);background:#fff;
+  font-size:12px;font-weight:500;color:var(--text-2);transition:all .15s;
+}
+.cat-btn.active{border-color:var(--blue);background:#EFF6FF;color:var(--blue);font-weight:600}
+
+.transport-row{display:flex;gap:8px;flex-wrap:wrap}
+.trans-btn{
+  flex:1;min-width:90px;display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:12px;border-radius:12px;border:1.5px solid var(--border);background:#fff;
+  font-size:13px;font-weight:500;color:var(--text-2);transition:all .15s;
+}
+.trans-btn.active{border-color:var(--blue);background:#EFF6FF;color:var(--blue);font-weight:600}
+
+.field-label{display:block;font-size:13px;font-weight:600;color:var(--text-2);margin:16px 0 6px}
+.field-input, .field-textarea, .field-select{
+  width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);
+  background:#fff;outline:none;transition:border .15s; font-size:14px;
+}
+.field-input:focus,.field-textarea:focus,.field-select:focus{border-color:var(--blue)}
+.field-textarea{resize:none;min-height:90px}
+.hint-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.hint-chip{padding:6px 10px;border-radius:100px;background:#F1F5F9;font-size:12px;color:var(--text-2);font-weight:500}
+.hint-chip:active{background:var(--border)}
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;padding:14px;background:#fff;border:1.5px solid var(--border);border-radius:12px;margin-top:16px}
+.checkbox-row input{margin-top:2px;width:18px;height:18px;accent-color:var(--blue)}
+.checkbox-row label{font-size:13px;color:var(--text-2);line-height:1.4}
+
+.form-footer{
+  position:sticky;bottom:0;padding:14px 16px;background:rgba(255,255,255,.95);
+  backdrop-filter:blur(12px);border-top:1px solid var(--border);
+  display:flex;gap:10px;z-index:15;
+}
+.btn-secondary{
+  flex:1;padding:14px;border-radius:12px;background:#F1F5F9;color:var(--text-2);
+  font-weight:600;font-size:14px;
+}
+.btn-primary{
+  flex:2;padding:14px;border-radius:12px;background:var(--blue);color:#fff;
+  font-weight:700;font-size:14px;box-shadow:0 6px 16px -6px rgba(37,99,235,.6);
+}
+.btn-primary:active{background:var(--blue-dark)}
+.btn-primary:disabled{opacity:.6;pointer-events:none}
+.btn-full{width:100%;flex:none}
+
+/* ---------- DETAIL ---------- */
+.detail-main{flex:1;padding:16px;padding-bottom:120px}
+.detail-hero{
+  display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--radius);
+  margin-bottom:16px;
+}
+.detail-hero.lost{background:var(--lost-bg)}
+.detail-hero.found{background:var(--found-bg)}
+.detail-type{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.detail-hero.lost .detail-type{color:var(--lost)}
+.detail-hero.found .detail-type{color:var(--found)}
+.detail-status{
+  margin-left:auto;font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;
+  text-transform:uppercase;letter-spacing:.4px;
+}
+.detail-status.top{background:var(--vip);color:#fff}
+.detail-status.vip{background:var(--vip-bg);color:#B45309;border:1px solid var(--vip)}
+.detail-title{font-size:22px;font-weight:700;letter-spacing:-.4px;line-height:1.3;margin-bottom:12px}
+.detail-meta{display:flex;flex-direction:column;gap:10px;padding:14px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px}
+.detail-meta-row{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-2)}
+.detail-meta-row svg{color:var(--text-3);flex-shrink:0}
+.detail-desc{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:16px}
+.control-card{background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius);padding:14px;margin-bottom:16px;display:flex;gap:10px}
+.control-card svg{color:var(--vip);flex-shrink:0}
+.control-card .label{font-size:12px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+.control-card .q{font-size:14px;color:var(--text);font-weight:500}
+
+.contact-block{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.contact-block .label{font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.3px;margin-bottom:10px}
+.contact-row{display:flex;gap:10px}
+.contact-btn{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px;border-radius:12px;font-weight:600;font-size:14px;
+}
+.contact-btn.call{background:var(--found-bg);color:var(--found)}
+.contact-btn.chat{background:var(--blue);color:#fff}
+
+.boost-block{
+  background:linear-gradient(135deg,#FFFBEB,#fff);border:1.5px solid var(--vip);
+  border-radius:var(--radius);padding:16px;margin-bottom:16px;
+}
+.boost-block h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.boost-block p{font-size:12px;color:var(--text-2);margin-bottom:12px}
+.boost-btn{
+  width:100%;padding:12px;border-radius:12px;background:var(--vip);color:#fff;
+  font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+
+/* ---------- MODALS ---------- */
+.modal{
+  position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;z-index:100;
+}
+.modal.open{display:flex;animation:fadeIn .2s ease}
+.modal-content{
+  width:100%;max-width:480px;background:#fff;border-radius:24px 24px 0 0;
+  padding:20px;max-height:92vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.16,1,.3,1);
+}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.modal-header h2{font-size:19px;font-weight:700;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.modal-sub{font-size:13px;color:var(--text-2);margin-bottom:16px}
+
+/* Plans */
+.plans{display:flex;flex-direction:column;gap:10px}
+.plan{
+  display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--border);
+  border-radius:14px;background:#fff;text-align:left;transition:all .15s;
+}
+.plan:active{transform:scale(.99)}
+.plan.recommended{border-color:var(--vip);background:linear-gradient(180deg,#FFFBEB,#fff)}
+.plan-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.plan-body{flex:1;min-width:0}
+.plan-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.plan-desc{font-size:12px;color:var(--text-2);line-height:1.35}
+.plan-price{font-size:15px;font-weight:800;color:var(--text);white-space:nowrap}
+.plan-price small{font-size:11px;font-weight:500;color:var(--text-3);display:block;text-align:right}
+
+/* Match modal */
+.match-hero{text-align:center;padding:8px 0 18px}
+.match-percent{
+  font-size:56px;font-weight:800;letter-spacing:-2px;line-height:1;
+  background:linear-gradient(135deg,#10B981,#2563EB);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.match-label{font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px}
+.match-sub{font-size:13px;color:var(--text-3);margin-top:6px}
+.match-compare{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.match-card{padding:14px;border-radius:14px;border:1.5px solid var(--border)}
+.match-card.lost{background:var(--lost-bg);border-color:#FCA5A5}
+.match-card.found{background:var(--found-bg);border-color:#6EE7B7}
+.match-card .tag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.match-card.lost .tag{color:var(--lost)}
+.match-card.found .tag{color:var(--found)}
+.match-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.match-card p{font-size:12px;color:var(--text-2)}
+.empty-match{text-align:center;padding:24px 12px;color:var(--text-2);font-size:14px}
+.empty-match svg{color:var(--text-3);margin-bottom:10px}
+
+/* Chat */
+.chat-content{display:flex;flex-direction:column;padding:0;max-height:80vh}
+.chat-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.chat-header h3{font-size:16px;font-weight:700}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:50vh}
+.msg{max-width:78%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.4}
+.msg.them{align-self:flex-start;background:#F1F5F9;border-bottom-left-radius:4px}
+.msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;opacity:.7;margin-top:4px;display:block}
+.chat-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:#fff}
+.chat-input-row input{flex:1;padding:10px 14px;border-radius:100px;border:1.5px solid var(--border);outline:none;font-size:14px}
+.chat-input-row input:focus{border-color:var(--blue)}
+.chat-input-row button{width:44px;height:44px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center}
+
+/* Payment */
+.pay-content{text-align:center}
+.pay-icon{width:64px;height:64px;border-radius:20px;background:var(--vip-bg);color:var(--vip);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.pay-amount{font-size:32px;font-weight:800;letter-spacing:-1px;margin:8px 0}
+.pay-method{font-size:13px;color:var(--text-2);margin-bottom:24px}
+.pay-row{display:flex;gap:8px;margin-bottom:14px}
+.pay-row button{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:#fff;font-weight:600;font-size:13px;color:var(--text-2)}
+.pay-row button.active{border-color:var(--blue);background:#EFF6FF;color:var(--blue)}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toasts */
+#toastContainer{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:200;width:calc(100% - 32px);max-width:448px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#0F172A;color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;animation:toastIn .3s ease}
+.toast.success{background:var(--found)}
+.toast.error{background:var(--lost)}
+.toast.warn{background:var(--vip)}
+.toast.info{background:var(--blue)}
+@keyframes toastIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+.toast.out{animation:toastOut .25s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(-12px)}}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="toastContainer"></div>
+
+  <!-- ========== HOME ========== -->
+  <section id="screen-home" class="screen active">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-mark" data-icon="package" data-size="18"></div>
+        <span>Lost&amp;Found</span>
+      </div>
+      <button class="city-btn" id="cityBtn">
+        <span data-icon="mapPin" data-size="14"></span>
+        <span id="cityLabel">Алматы</span>
+        <span data-icon="chevronDown" data-size="14"></span>
+      </button>
+      <button class="match-btn" id="matchBtn" title="Умные совпадения">
+        <span data-icon="sparkles" data-size="20"></span>
+        <span class="match-badge hidden" id="matchBadge">0</span>
+      </button>
+    </header>
+
+    <main class="home-main">
+      <div class="hero-actions">
+        <button class="action-btn lost" data-go-form="lost">
+          <span data-icon="search" data-size="24"></span>
+          <span>Я ПОТЕРЯЛ</span>
+          <span class="sub">найти и вернуть</span>
+        </button>
+        <button class="action-btn found" data-go-form="found">
+          <span data-icon="check" data-size="24"></span>
+          <span>Я НАШЁЛ</span>
+          <span class="sub">помочь владельцу</span>
+        </button>
+      </div>
+
+      <div class="filters-block">
+        <div class="chip-row" id="typeFilterRow">
+          <button class="chip active" data-type-filter="all">Все</button>
+          <button class="chip lost" data-type-filter="lost">Потерял</button>
+          <button class="chip found" data-type-filter="found">Нашёл</button>
+        </div>
+        <div class="chip-row" id="transportFilterRow">
+          <button class="chip active" data-transport-filter="all">Все</button>
+          <button class="chip" data-transport-filter="bus"><span data-icon="bus" data-size="14"></span>Автобус</button>
+          <button class="chip" data-transport-filter="metro"><span data-icon="train" data-size="14"></span>Метро</button>
+          <button class="chip" data-transport-filter="taxi"><span data-icon="car" data-size="14"></span>Такси</button>
+        </div>
+        <div class="search-box">
+          <span data-icon="search" data-size="18"></span>
+          <input type="text" id="searchInput" placeholder="Маршрут, вещь или слово…">
+        </div>
+      </div>
+
+      <div class="feed" id="feed"></div>
+    </main>
+
+    <footer class="app-footer">
+      <button class="reset-btn" id="resetBtn">
+        <span data-icon="refresh" data-size="14"></span>
+        Сбросить демо-данные
+      </button>
+      <div class="footer-note">Прототип · Алматы · Расчёты в тенге ₸</div>
+    </footer>
+  </section>
+
+  <!-- ========== FORM ========== -->
+  <section id="screen-form" class="screen">
+    <header class="app-header">
+      <button class="icon-btn" id="formCloseBtn"><span data-icon="x" data-size="20"></span></button>
+      <div class="header-title">Новое объявление</div>
+      <div style="width:40px"></div>
+    </header>
+    <div class="progress-track"><div class="progress-fill" id="formProgress"></div></div>
+
+    <main class="form-main">
+      <!-- Step 1 -->
+      <div class="form-step" data-step="1">
+        <h2 class="step-title">Что случилось?</h2>
+        <p class="step-sub">Алгоритм подберёт совпадения по категории, маршруту и времени</p>
+        <div class="type-toggle">
+          <button class="type-btn lost" data-type="lost">
+            <span data-icon="search" data-size="22"></span>
+            <span>Я потерял</span>
+          </button>
+          <button class="type-btn found" data-type="found">
+            <span data-icon="check" data-size="22"></span>
+            <span>Я нашёл</span>
+          </button>
+        </div>
+
+        <h3 class="step-h3">Что за вещь?</h3>
+        <div class="category-grid">
+          <button class="cat-btn" data-category="phone"><span data-icon="phone" data-size="22"></span><span>Телефон</span></button>
+          <button class="cat-btn" data-category="docs"><span data-icon="file" data-size="22"></span><span>Документы</span></button>
+          <button class="cat-btn" data-category="keys"><span data-icon="key" data-size="22"></span><span>Ключи</span></button>
+          <button class="cat-btn" data-category="bag"><span data-icon="backpack" data-size="22"></span><span>Сумка</span></button>
+          <button class="cat-btn" data-category="other"><span data-icon="package" data-size="22"></span><span>Другое</span></button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="form-step" data-step="2">
+        <h2 class="step-title">Где и когда?</h2>
+        <p class="step-sub">Укажите транспорт, маршрут и примерное время поездки</p>
+
+        <h3 class="step-h3">Вид транспорта</h3>
+        <div class="transport-row">
+          <button class="trans-btn" data-transport="bus"><span data-icon="bus" data-size="18"></span>Автобус</button>
+          <button class="trans-btn" data-transport="metro"><span data-icon="train" data-size="18"></span>Метро</button>
+          <button class="trans-btn" data-transport="taxi"><span data-icon="car" data-size="18"></span>Такси</button>
+        </div>
+
+        <label class="field-label" for="formRoute">Номер маршрута / сервис</label>
+        <input class="field-input" id="formRoute" placeholder="Например: 32, 92 или Яндекс Такси">
+        <div class="hint-chips">
+          <button class="hint-chip" data-route="32">№32</button>
+          <button class="hint-chip" data-route="65">№65</button>
+          <button class="hint-chip" data-route="79">№79</button>
+          <button class="hint-chip" data-route="92">№92</button>
+          <button class="hint-chip" data-route="121">№121</button>
+          <button class="hint-chip" data-route="Метро">Метро</button>
+          <button class="hint-chip" data-route="Яндекс Такси">Яндекс Такси</button>
+          <button class="hint-chip" data-route="InDrive">InDrive</button>
+        </div>
+
+        <label class="field-label" for="formTime">Примерное время</label>
+        <select class="field-select" id="formTime">
+          <option value="0.5">30 минут назад</option>
+          <option value="1">1 час назад</option>
+          <option value="3">3 часа назад</option>
+          <option value="6">6 часов назад</option>
+          <option value="12">12 часов назад</option>
+          <option value="24">24 часа назад</option>
+        </select>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="form-step" data-step="3">
+        <h2 class="step-title">Детали и контакт</h2>
+        <p class="step-sub">Коротко опишите вещь и оставьте способ связи</p>
+
+        <label class="field-label" for="formTitle">Заголовок</label>
+        <input class="field-input" id="formTitle" placeholder="Например: Чёрный рюкзак Xiaomi">
+
+        <label class="field-label" for="formDesc">Описание и приметы</label>
+        <textarea class="field-textarea" id="formDesc" placeholder="Цвет, бренд, особые приметы, что внутри…"></textarea>
+
+        <label class="field-label" for="formContact">Контакт (телефон / Telegram)</label>
+        <input class="field-input" id="formContact" placeholder="+7 ... или @username">
+
+        <div class="checkbox-row" id="rewardBlock">
+          <input type="checkbox" id="formReward">
+          <label for="formReward"><strong>Готов отблагодарить</strong><br>Покажем бейдж «Вознаграждение» в карточке</label>
+        </div>
+
+        <div id="controlBlock" class="hidden">
+          <label class="field-label" for="formControl">Контрольный вопрос для владельца</label>
+          <input class="field-input" id="formControl" placeholder="Например: Назовите обои на экране">
+        </div>
+      </div>
+    </main>
+
+    <footer class="form-footer">
+      <button class="btn-secondary" id="formBack">Отмена</button>
+      <button class="btn-primary" id="formNext">Далее</button>
+    </footer>
+  </section>
+
+  <!-- ========== DETAIL ========== -->
+  <section id="screen-detail" class="screen">
+    <header class="app-header">
+      <button class="icon-btn" id="detailBack"><span data-icon="arrowLeft" data-size="20"></span></button>
+      <div class="header-title">Объявление</div>
+      <div style="width:40px"></div>
+    </header>
+    <main class="detail-main" id="detailContent"></main>
+  </section>
+</div>
+
+<!-- ========== MODALS ========== -->
+
+<!-- Smart Match -->
+<div id="smartMatchModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><span data-icon="sparkles" data-size="20" style="color:var(--vip)"></span> Умные совпадения</h2>
+      <button class="icon-btn" data-close="smartMatchModal"><span data-icon="x" data-size="20"></span></button>
+    </div>
+    <p class="modal-sub">Алгоритм сопоставляет категорию, маршрут и временное окно</p>
+    <div id="smartMatchBody"></div>
+  </div>
+</div>
+
+<!-- Monetization -->
+<div id="monetizeModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2><span data-icon="zap" data-size="20" style="color:var(--vip)"></span> Ускорьте поиск</h2>
+      <button class="icon-btn" data-close="monetizeModal"><span data-icon="x" data-size="20"></span></button>
+    </div>
+    <p class="modal-sub">Чем быстрее увидят объявление — тем выше шанс вернуть вещь</p>
+    <div class="plans">
+      <button class="plan" data-plan="base">
+        <div class="plan-icon" style="background:#F1F5F9;color:var(--text-2)"><span data-icon="package" data-size="20"></span></div>
+        <div class="plan-body">
+          <div class="plan-title">Базовое размещение</div>
+          <div class="plan-desc">Обычная очередь в ленте</div>
+        </div>
+        <div class="plan-price">0 ₸<small>бесплатно</small></div>
+      </button>
+      <button class="plan recommended" data-plan="top">
+        <div class="plan-icon" style="background:var(--vip-bg);color:var(--vip)"><span data-icon="zap" data-size="20"></span></div>
+        <div class="plan-body">
+          <div class="plan-title">Поднятие в ТОП <span class="badge badge-top" style="margin-left:4px">24ч</span></div>
+          <div class="plan-desc">Закрепление наверху ленты по маршруту</div>
+        </div>
+        <div class="plan-price">790 ₸</div>
+      </button>
+      <button class="plan" data-plan="vip">
+        <div class="plan-icon" style="background:#FEF2F2;color:var(--lost)"><span data-icon="sparkles" data-size="20"></span></div>
+        <div class="plan-body">
+          <div class="plan-title">VIP-статус + выделение</div>
+          <div class="plan-desc">Яркая подсветка — для срочных документов и ключей</div>
+        </div>
+        <div class="plan-price">1 490 ₸</div>
+      </button>
+      <button class="plan" data-plan="push">
+        <div class="plan-icon" style="background:#EFF6FF;color:var(--blue)"><span data-icon="bell" data-size="20"></span></div>
+        <div class="plan-body">
+          <div class="plan-title">Push по маршруту</div>
+          <div class="plan-desc">Мгновенная рассылка пассажирам этого маршрута</div>
+        </div>
+        <div class="plan-price">2 990 ₸</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment -->
+<div id="paymentModal" class="modal">
+  <div class="modal-content pay-content">
+    <div class="pay-icon" data-icon="shield" data-size="30"></div>
+    <h2 style="font-size:18px;font-weight:700">Оплата услуги</h2>
+    <div class="pay-amount" id="payAmount">790 ₸</div>
+    <div class="pay-method" id="payMethod">Поднятие в ТОП на 24 часа</div>
+    <div class="pay-row">
+      <button class="active" data-pay="kaspi">Kaspi QR</button>
+      <button data-pay="card">Карта</button>
+    </div>
+    <button class="btn-primary btn-full" id="payConfirm">Оплатить</button>
+  </div>
+</div>
+
+<!-- Chat -->
+<div id="chatModal" class="modal">
+  <div class="modal-content chat-content">
+    <div class="chat-header">
+      <h3>Безопасный чат</h3>
+      <button class="icon-btn" data-close="chatModal"><span data-icon="x" data-size="20"></span></button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Написать сообщение…">
+      <button id="chatSend"><span data-icon="message" data-size="18"></span></button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ICONS
+============================================================ */
+const ICONS = {
+  search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  mapPin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+  chevronDown:'<path d="m6 9 6 6 6-6"/>',
+  arrowLeft:'<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  clock:'<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  bus:'<path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>',
+  train:'<rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><circle cx="8" cy="15" r=".5"/><circle cx="16" cy="15" r=".5"/>',
+  car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+  phone:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+  file:'<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
+  backpack:'<path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M8 10v4"/><path d="M16 10v4"/><path d="M8 18v2"/><path d="M16 18v2"/>',
+  package:'<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  message:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  zap:'<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+  check:'<polyline points="20 6 9 17 4 12"/>',
+  sparkles:'<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>',
+  shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  refresh:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>'
+};
+function icon(name, size){
+  return `<svg width="${size||20}" height="${size||20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]||''}</svg>`;
+}
+function injectIcons(root){
+  (root||document).querySelectorAll('[data-icon]').forEach(el=>{
+    el.innerHTML = icon(el.dataset.icon, el.dataset.size||20);
+  });
+}
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ============================================================
+   STATE + MOCK DATA
+============================================================ */
+const STORAGE_KEY = 'lostfound_ads_v1';
+const NOW = Date.now();
+const H = 3600*1000;
+
+const TRANSPORT_LABEL = {bus:'Автобус', metro:'Метро', taxi:'Такси'};
+const CATEGORY_LABEL = {phone:'Телефон', docs:'Документы', keys:'Ключи', bag:'Сумка', other:'Другое'};
+const CATEGORY_ICON = {phone:'phone', docs:'file', keys:'key', bag:'backpack', other:'package'};
+
+const MOCK_DATA = [
+  {id:'a1', type:'lost', category:'docs', transport:'bus', route:'92',
+   time:new Date(NOW-2*H).toISOString(),
+   title:'Удостоверение личности на имя А. Серикова',
+   description:'Потерял удостоверение в 92 автобусе, вышел на остановке Абая. Прошу вернуть за вознаграждение.',
+   contact:'+7 701 234 56 78', reward:true, status:'top', createdAt:NOW-0.5*H, controlQuestion:null},
+  {id:'a2', type:'lost', category:'bag', transport:'bus', route:'32',
+   time:new Date(NOW-3*H).toISOString(),
+   title:'Чёрный рюкзак Xiaomi в 32 автобусе',
+   description:'Оставил рюкзак с ноутбуком в автобусе №32, сиденье у окна. Внутри зарядка и блокнот.',
+   contact:'@aidos_t', reward:true, status:'vip', createdAt:NOW-1*H, controlQuestion:null},
+  {id:'a3', type:'lost', category:'keys', transport:'taxi', route:'Яндекс Такси',
+   time:new Date(NOW-5*H).toISOString(),
+   title:'Связка ключей с брелоком Arsenal',
+   description:'Оставил в Яндекс Такси. Брелок в виде мяча Arsenal, 4 ключа и чип от домофона.',
+   contact:'+7 777 890 12 34', reward:false, status:'vip', createdAt:NOW-2*H, controlQuestion:null},
+  {id:'a4', type:'lost', category:'phone', transport:'metro', route:'Метро',
+   time:new Date(NOW-6*H).toISOString(),
+   title:'AirPods Pro в белом кейсе',
+   description:'Выронил в метро на станции Алатау. Кейс с гравировкой «AS».',
+   contact:'@madina_k', reward:false, status:'base', createdAt:NOW-6*H, controlQuestion:null},
+  {id:'a5', type:'found', category:'phone', transport:'bus', route:'65',
+   time:new Date(NOW-4*H).toISOString(),
+   title:'Найден Samsung Galaxy в автобусе №65',
+   description:'Нашёл телефон Samsung в чёрном чехле на заднем сиденье. Экран разблокирован, жду владельца.',
+   contact:'+7 705 111 22 33', reward:false, status:'base', createdAt:NOW-3.5*H,
+   controlQuestion:'Назовите обои на экране и модель чехла.'},
+  {id:'a6', type:'found', category:'keys', transport:'metro', route:'Метро',
+   time:new Date(NOW-8*H).toISOString(),
+   title:'Ключи с брелком на станции Абая',
+   description:'Связка из 3 ключей и брелок-фонарик. Оставил на вахте станции Абая.',
+   contact:'@metro_help', reward:false, status:'base', createdAt:NOW-7*H,
+   controlQuestion:'Сколько ключей на связке и какого цвета брелок?'},
+  {id:'a7', type:'lost', category:'docs', transport:'taxi', route:'InDrive',
+   time:new Date(NOW-12*H).toISOString(),
+   title:'Кошелёк с картами в InDrive',
+   description:'Оставил кошелёк на заднем сиденье. Внутри карты Kaspi, водительское удостоверение.',
+   contact:'+7 702 345 67 89', reward:true, status:'base', createdAt:NOW-11*H, controlQuestion:null},
+  {id:'a8', type:'found', category:'bag', transport:'bus', route:'32',
+   time:new Date(NOW-2.5*H).toISOString(),
+   title:'Найден чёрный рюкзак в автобусе №32',
+   description:'Обнаружил рюкзак Xiaomi на сиденье у окна. Внутри ноутбук и блокнот. Передал водителю.',
+   contact:'+7 707 555 66 77', reward:false, status:'base', createdAt:NOW-2.2*H,
+   controlQuestion:'Что находится во внутреннем кармане рюкзака?'},
+  {id:'a9', type:'lost', category:'phone', transport:'metro', route:'Метро',
+   time:new Date(NOW-14*H).toISOString(),
+   title:'iPhone 15 на станции Жибек Жолы',
+   description:'Потерял iPhone 15 Pro в синем чехле. Экран заблокирован, есть Find My.',
+   contact:'@aliya_s', reward:true, status:'base', createdAt:NOW-13*H, controlQuestion:null},
+  {id:'a10', type:'found', category:'docs', transport:'bus', route:'79',
+   time:new Date(NOW-9*H).toISOString(),
+   title:'Документы на имя Н. Ахметова в автобусе №79',
+   description:'Нашёл папку с документами: удостоверение и техпаспорт. Передал водителю маршрута.',
+   contact:'+7 701 987 65 43', reward:false, status:'base', createdAt:NOW-8.5*H,
+   controlQuestion:'Какой документ кроме удостоверения находится в папке?'},
+  {id:'a11', type:'lost', category:'bag', transport:'taxi', route:'Яндекс Такси',
+   time:new Date(NOW-20*H).toISOString(),
+   title:'Сумка с ноутбуком в Яндекс Такси',
+   description:'Оставил серую сумку с MacBook Air. Машина — белая Kia Rio, ехал с Абая до Достык.',
+   contact:'+7 776 543 21 09', reward:true, status:'base', createdAt:NOW-19*H, controlQuestion:null},
+  {id:'a12', type:'found', category:'other', transport:'bus', route:'121',
+   time:new Date(NOW-10*H).toISOString(),
+   title:'Найден зонт в автобусе №121',
+   description:'Чёрный зонт-автомат забыт в салоне. Лежит у водителя.',
+   contact:'+7 700 123 45 67', reward:false, status:'base', createdAt:NOW-9.5*H,
+   controlQuestion:'Какого цвета ручка зонта?'}
+];
+
+let state = {
+  ads: [],
+  filterType: 'all',
+  filterTransport: 'all',
+  searchQuery: '',
+  screen: 'home',
+  formStep: 1,
+  formData: {},
+  detailId: null,
+  monetizeAdId: null,
+  pendingPlan: null,
+  payMethod: 'kaspi',
+  chats: {}
+};
+
+/* ============================================================
+   STORAGE
+============================================================ */
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.ads)); }catch(e){} }
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ const arr = JSON.parse(raw); if(Array.isArray(arr) && arr.length) return arr; }
+  }catch(e){}
+  return null;
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const $ = (s,c)=> (c||document).querySelector(s);
+const $$ = (s,c)=> [...(c||document).querySelectorAll(s)];
+
+function formatAgo(ts){
+  const diff = (Date.now()-ts)/1000;
+  if(diff<60) return 'только что';
+  if(diff<3600) return Math.floor(diff/60)+' мин назад';
+  if(diff<86400) return Math.floor(diff/3600)+' ч назад';
+  return Math.floor(diff/86400)+' дн назад';
+}
+function formatDateTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+', '+
+         d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+}
+
+/* ============================================================
+   TOAST
+============================================================ */
+function toast(msg, type){
+  const c = $('#toastContainer');
+  const el = document.createElement('div');
+  el.className = 'toast '+(type||'info');
+  el.innerHTML = `${icon(type==='success'?'check':type==='error'?'x':type==='warn'?'bell':'sparkles',18)}<span>${esc(msg)}</span>`;
+  c.appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),260); }, 2600);
+}
+
+/* ============================================================
+   MODALS
+============================================================ */
+function openModal(id){ $('#'+id).classList.add('open'); }
+function closeModal(id){ $('#'+id).classList.remove('open'); }
+
+/* ============================================================
+   SCREENS
+============================================================ */
+function switchScreen(name){
+  state.screen = name;
+  $$('.screen').forEach(s=>s.classList.remove('active'));
+  $('#screen-'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+}
+function goHome(){
+  switchScreen('home');
+  renderFeed();
+  updateBadge();
+}
+
+/* ============================================================
+   FEED
+============================================================ */
+function getFilteredAds(){
+  let ads = [...state.ads];
+  if(state.filterType !== 'all') ads = ads.filter(a=>a.type===state.filterType);
+  if(state.filterTransport !== 'all') ads = ads.filter(a=>a.transport===state.filterTransport);
+  const q = state.searchQuery.toLowerCase().trim();
+  if(q){
+    ads = ads.filter(a=>
+      (a.title||'').toLowerCase().includes(q) ||
+      (a.description||'').toLowerCase().includes(q) ||
+      (a.route||'').toLowerCase().includes(q) ||
+      (CATEGORY_LABEL[a.category]||'').toLowerCase().includes(q)
+    );
+  }
+  const order = {top:0, vip:1, base:2};
+  ads.sort((a,b)=>{
+    const od = (order[a.status]??2) - (order[b.status]??2);
+    if(od!==0) return od;
+    return b.createdAt - a.createdAt;
+  });
+  return ads;
+}
+
+function cardHTML(ad){
+  const isLost = ad.type==='lost';
+  const statusCls = ad.status==='top' ? 'status-top' : ad.status==='vip' ? 'status-vip' : '';
+  let badge = '';
+  if(ad.status==='top') badge = '<span class="badge badge-top">ТОП</span>';
+  else if(ad.status==='vip') badge = '<span class="badge badge-vip">VIP · СРОЧНО</span>';
+  const pushBadge = ad.pushed ? '<span class="badge badge-push">PUSH</span>' : '';
+  return `
+    <article class="ad-card ${statusCls}" data-ad-id="${ad.id}">
+      <div class="ad-top-row">
+        <span class="ad-type ${isLost?'lost':'found'}">${isLost?'Потерял':'Нашёл'}</span>
+        <div style="display:flex;gap:4px;align-items:center">${pushBadge}${badge}</div>
+      </div>
+      <h3 class="ad-title">${esc(ad.title)}</h3>
+      <p class="ad-desc">${esc(ad.description)}</p>
+      <div class="ad-meta">
+        <span>${icon('bus',13)} ${TRANSPORT_LABEL[ad.transport]||''} · ${esc(ad.route)}</span>
+        <span>${icon('clock',13)} ${formatAgo(ad.createdAt)}</span>
+        ${ad.reward?'<span>'+icon('gift',13)+' Вознаграждение</span>':''}
+      </div>
+    </article>`;
+}
+
+function renderFeed(){
+  const feed = $('#feed');
+  const ads = getFilteredAds();
+  if(!ads.length){
+    feed.innerHTML = `<div class="empty-match">${icon('search',36)}<div>Ничего не найдено. Измените фильтры или добавьте своё объявление.</div></div>`;
+    return;
+  }
+  let html = '';
+  const tops = ads.filter(a=>a.status==='top');
+  const vips = ads.filter(a=>a.status==='vip');
+  const bases = ads.filter(a=>a.status!=='top' && a.status!=='vip');
+  if(tops.length){ html += '<div class="feed-label">Закреплено · ТОП</div>' + tops.map(cardHTML).join(''); }
+  if(vips.length){ html += '<div class="feed-label">Срочные · VIP</div>' + vips.map(cardHTML).join(''); }
+  if(bases.length){ html += '<div class="feed-label">Все объявления</div>' + bases.map(cardHTML).join(''); }
+  feed.innerHTML = html;
+}
+
+/* ============================================================
+   SMART MATCH
+============================================================ */
+function calcMatch(a,b){
+  let score = 0;
+  if(a.category===b.category) score += 35;
+  if(a.transport===b.transport) score += 10;
+  if(a.route && b.route && a.route.toLowerCase()===b.route.toLowerCase()) score += 35;
+  const diff = Math.abs(new Date(a.time) - new Date(b.time)) / H;
+  if(diff<=2) score += 15;
+  else if(diff<=6) score += 10;
+  else if(diff<=24) score += 5;
+  return Math.min(99, score);
+}
+
+function findBestMatch(){
+  let best = null;
+  const losts = state.ads.filter(a=>a.type==='lost');
+  const founds = state.ads.filter(a=>a.type==='found');
+  for(const l of losts){
+    for(const f of founds){
+      const s = calcMatch(l,f);
+      if(!best || s > best.score) best = {lost:l, found:f, score:s};
+    }
+  }
+  return best;
+}
+
+function countHighMatches(){
+  let n = 0;
+  const losts = state.ads.filter(a=>a.type==='lost');
+  const founds = state.ads.filter(a=>a.type==='found');
+  for(const l of losts) for(const f of founds) if(calcMatch(l,f)>=60) n++;
+  return n;
+}
+
+function updateBadge(){
+  const badge = $('#matchBadge');
+  const n = countHighMatches();
+  if(n>0){ badge.textContent = n; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+function renderSmartMatch(){
+  const best = findBestMatch();
+  const body = $('#smartMatchBody');
+  if(!best || best.score < 40){
+    body.innerHTML = `
+      <div class="empty-match">
+        ${icon('sparkles',40)}
+        <div style="margin-bottom:14px">Пока нет явных совпадений.<br>Попробуйте симулировать новое совпадение.</div>
+        <button class="btn-primary btn-full" id="simulateBtn">Симулировать совпадение</button>
+      </div>`;
+    $('#simulateBtn').addEventListener('click', simulateMatch);
+    return;
+  }
+  const {lost, found, score} = best;
+  body.innerHTML = `
+    <div class="match-hero">
+      <div class="match-percent">${score}%</div>
+      <div class="match-label">совпадение</div>
+      <div class="match-sub">${TRANSPORT_LABEL[lost.transport]} · маршрут ${esc(lost.route)} · временное окно ${Math.round(Math.abs(new Date(lost.time)-new Date(found.time))/H)} ч</div>
+    </div>
+    <div class="match-compare">
+      <div class="match-card lost">
+        <div class="tag">Потерял</div>
+        <h4>${esc(lost.title)}</h4>
+        <p>${esc(lost.description)}</p>
+      </div>
+      <div class="match-card found">
+        <div class="tag">Нашёл</div>
+        <h4>${esc(found.title)}</h4>
+        <p>${esc(found.description)}</p>
+      </div>
+    </div>
+    <button class="btn-primary btn-full" id="matchContactBtn" style="margin-bottom:10px">Связаться безопасно</button>
+    <button class="btn-secondary btn-full" id="simulateBtn">Симулировать новое совпадение</button>
+  `;
+  $('#matchContactBtn').addEventListener('click', ()=>{ closeModal('smartMatchModal'); openChat(found.id, lost.id); });
+  $('#simulateBtn').addEventListener('click', simulateMatch);
+}
+
+function simulateMatch(){
+  const losts = state.ads.filter(a=>a.type==='lost').sort((a,b)=>b.createdAt-a.createdAt);
+  if(!losts.length){ toast('Нет объявлений «Потерял» для симуляции','warn'); return; }
+  const lost = losts[0];
+  const catLabel = CATEGORY_LABEL[lost.category] || 'вещь';
+  const simulated = {
+    id: 'sim_'+Date.now(),
+    type: 'found',
+    category: lost.category,
+    transport: lost.transport,
+    route: lost.route,
+    time: new Date(new Date(lost.time).getTime() + 1.2*H).toISOString(),
+    title: 'Найдено: '+catLabel+' на маршруте '+lost.route,
+    description: 'Нашёл похожую вещь на маршруте '+lost.route+'. Свяжитесь для проверки деталей.',
+    contact: '+7 700 000 00 00',
+    reward: false,
+    status: 'base',
+    createdAt: Date.now(),
+    controlQuestion: 'Опишите особые приметы вещи.'
+  };
+  state.ads.unshift(simulated);
+  save();
+  renderFeed();
+  renderSmartMatch();
+  updateBadge();
+  toast('Симуляция совпадения создана!','success');
+}
+
+/* ============================================================
+   DETAIL
+============================================================ */
+function goDetail(id){
+  state.detailId = id;
+  renderDetail();
+  switchScreen('detail');
+}
+
+function renderDetail(){
+  const ad = state.ads.find(a=>a.id===state.detailId);
+  if(!ad){ goHome(); return; }
+  const isLost = ad.type==='lost';
+  const statusBadge = ad.status==='top'
+    ? `<div class="detail-status top">ТОП${ad.pushed?' · PUSH':''}</div>`
+    : ad.status==='vip'
+      ? `<div class="detail-status vip">VIP${ad.pushed?' · PUSH':''}</div>`
+      : ad.pushed ? `<div class="detail-status top">PUSH</div>` : '';
+
+  let html = `
+    <div class="detail-hero ${isLost?'lost':'found'}">
+      <span class="detail-type">${isLost?'Потерял':'Нашёл'}</span>
+      ${statusBadge}
+    </div>
+    <h1 class="detail-title">${esc(ad.title)}</h1>
+    <div class="detail-meta">
+      <div class="detail-meta-row">${icon('bus',18)} ${TRANSPORT_LABEL[ad.transport]||''} · маршрут <strong>${esc(ad.route)}</strong></div>
+      <div class="detail-meta-row">${icon('clock',18)} Поездка: ${formatDateTime(ad.time)}</div>
+      <div class="detail-meta-row">${icon(CATEGORY_ICON[ad.category]||'package',18)} Категория: ${CATEGORY_LABEL[ad.category]||'Другое'}</div>
+      ${ad.reward?`<div class="detail-meta-row">${icon('gift',18)} <span style="color:var(--found);font-weight:600">Вознаграждение</span></div>`:''}
+    </div>
+    <div class="detail-desc">${esc(ad.description)}</div>`;
+
+  if(!isLost && ad.controlQuestion){
+    html += `<div class="control-card">${icon('shield',20)}
+      <div><div class="label">Контрольный вопрос</div><div class="q">${esc(ad.controlQuestion)}</div></div>
+    </div>`;
+  }
+
+  html += `<div class="contact-block">
+    <div class="label">Связаться с автором</div>
+    <div class="contact-row">
+      <button class="contact-btn call" id="callBtn">${icon('phone',18)} Позвонить</button>
+      <button class="contact-btn chat" id="chatBtn">${icon('message',18)} Написать</button>
+    </div>
+  </div>`;
+
+  if(ad.status !== 'top' || !ad.pushed){
+    html += `<div class="boost-block">
+      <h4>${icon('zap',16)} Ускорить поиск</h4>
+      <p>Поднимите объявление в ТОП или отправьте push пассажирам маршрута</p>
+      <button class="boost-btn" id="boostBtn">${icon('zap',16)} Буст от 790 ₸</button>
+    </div>`;
+  }
+
+  $('#detailContent').innerHTML = html;
+
+  $('#callBtn').addEventListener('click', ()=>{
+    toast('Телефон: '+ad.contact, 'info');
+  });
+  $('#chatBtn').addEventListener('click', ()=> openChat(ad.id));
+  const boostBtn = $('#boostBtn');
+  if(boostBtn) boostBtn.addEventListener('click', ()=> openMonetize(ad.id));
+}
+
+/* ============================================================
+   FORM
+============================================================ */
+function goForm(type){
+  state.formData = {
+    type: type || 'lost',
+    category: null,
+    transport: null,
+    route: '',
+    timeAgo: 1,
+    title: '',
+    description: '',
+    contact: '',
+    reward: false,
+    controlQuestion: ''
+  };
+  state.formStep = 1;
+  switchScreen('form');
+  renderForm();
+}
+
+function renderForm(){
+  $$('.form-step').forEach(el=>{
+    el.classList.toggle('active', +el.dataset.step === state.formStep);
+  });
+  $('#formProgress').style.width = (state.formStep/3*100)+'%';
+  $$('.type-btn').forEach(b=>b.classList.toggle('active', b.dataset.type===state.formData.type));
+  $$('.cat-btn').forEach(b=>b.classList.toggle('active', b.dataset.category===state.formData.category));
+  $$('.trans-btn').forEach(b=>b.classList.toggle('active', b.dataset.transport===state.formData.transport));
+  $('#formRoute').value = state.formData.route || '';
+  $('#formTime').value = String(state.formData.timeAgo || 1);
+  $('#formTitle').value = state.formData.title || '';
+  $('#formDesc').value = state.formData.description || '';
+  $('#formContact').value = state.formData.contact || '';
+  $('#formReward').checked = !!state.formData.reward;
+  $('#formControl').value = state.formData.controlQuestion || '';
+  $('#rewardBlock').classList.toggle('hidden', state.formData.type!=='lost');
+  $('#controlBlock').classList.toggle('hidden', state.formData.type!=='found');
+  $('#formBack').textContent = state.formStep===1 ? 'Отмена' : 'Назад';
+  $('#formNext').textContent = state.formStep===3 ? 'Опубликовать' : 'Далее';
+}
+
+function validateStep(){
+  const f = state.formData;
+  if(state.formStep===1){
+    if(!f.type) return 'Выберите тип объявления';
+    if(!f.category) return 'Выберите категорию вещи';
+  }
+  if(state.formStep===2){
+    if(!f.transport) return 'Выберите вид транспорта';
+    if(!f.route.trim()) return 'Укажите номер маршрута';
+  }
+  if(state.formStep===3){
+    if(!f.title.trim()) return 'Введите заголовок';
+    if(!f.description.trim()) return 'Добавьте описание';
+    if(!f.contact.trim()) return 'Укажите контакт для связи';
+  }
+  return null;
+}
+
+function formNext(){
+  // sync current step inputs to state
+  if(state.formStep===2){
+    state.formData.route = $('#formRoute').value.trim();
+    state.formData.timeAgo = parseFloat($('#formTime').value) || 1;
+  }
+  if(state.formStep===3){
+    state.formData.title = $('#formTitle').value.trim();
+    state.formData.description = $('#formDesc').value.trim();
+    state.formData.contact = $('#formContact').value.trim();
+    state.formData.reward = $('#formReward').checked;
+    state.formData.controlQuestion = $('#formControl').value.trim();
+  }
+  const err = validateStep();
+  if(err){ toast(err, 'warn'); return; }
+  if(state.formStep < 3){
+    state.formStep++;
+    renderForm();
+    return;
+  }
+  publishAd();
+}
+
+function publishAd(){
+  const f = state.formData;
+  const ad = {
+    id: 'ad_'+Date.now(),
+    type: f.type,
+    category: f.category,
+    transport: f.transport,
+    route: f.route,
+    time: new Date(Date.now() - f.timeAgo*H).toISOString(),
+    title: f.title,
+    description: f.description,
+    contact: f.contact,
+    reward: !!f.reward,
+    status: 'base',
+    pushed: false,
+    createdAt: Date.now(),
+    controlQuestion: f.type==='found' ? (f.controlQuestion||null) : null
+  };
+  state.ads.unshift(ad);
+  save();
+  renderFeed();
+  updateBadge();
+  toast('Объявление опубликовано!', 'success');
+  // Offer monetization
+  state.monetizeAdId = ad.id;
+  setTimeout(()=> openMonetize(ad.id), 350);
+  // Auto smart match after closing monetize
+  const match = findBestMatch();
+  if(match && match.score >= 60){
+    setTimeout(()=>{
+      toast('Найдено '+match.score+'% совпадение! Проверьте «Умные совпадения»', 'success');
+      updateBadge();
+    }, 2200);
+  }
+}
+
+/* ============================================================
+   MONETIZATION
+============================================================ */
+const PLANS = {
+  base: {price:0, label:'Базовое размещение', method:'Бесплатно'},
+  top:  {price:790, label:'Поднятие в ТОП на 24 часа', method:'Поднятие в ТОП (24ч)'},
+  vip:  {price:1490, label:'VIP-статус + выделение', method:'VIP + выделение цветом'},
+  push: {price:2990, label:'Push-уведомление по маршруту', method:'Push по маршруту'}
+};
+
+function openMonetize(adId){
+  state.monetizeAdId = adId;
+  openModal('monetizeModal');
+}
+
+function selectPlan(plan){
+  if(plan==='base'){
+    closeModal('monetizeModal');
+    toast('Объявление размещено в общей ленте','success');
+    goHome();
+    return;
+  }
+  state.pendingPlan = plan;
+  const p = PLANS[plan];
+  $('#payAmount').textContent = p.price.toLocaleString('ru-RU')+' ₸';
+  $('#payMethod').textContent = p.method;
+  state.payMethod = 'kaspi';
+  $$('.pay-row button').forEach(b=>b.classList.toggle('active', b.dataset.pay==='kaspi'));
+  $('#payConfirm').textContent = 'Оплатить';
+  $('#payConfirm').disabled = false;
+  openModal('paymentModal');
+}
+
+function confirmPayment(){
+  const btn = $('#payConfirm');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+  setTimeout(()=>{
+    const ad = state.ads.find(a=>a.id===state.monetizeAdId);
+    const plan = state.pendingPlan;
+    if(ad && plan){
+      if(plan==='vip'){ ad.status='vip'; }
+      else if(plan==='top'){ ad.status='top'; }
+      else if(plan==='push'){ ad.status='top'; ad.pushed = true; }
+      save();
+      closeModal('paymentModal');
+      closeModal('monetizeModal');
+      renderFeed();
+      if(state.screen==='detail') renderDetail();
+      if(plan==='push'){
+        toast('Push отправлен всем пассажирам маршрута '+ad.route, 'success');
+      } else {
+        toast('«'+PLANS[plan].label+'» активирован!', 'success');
+      }
+    }
+    state.pendingPlan = null;
+    btn.disabled = false;
+    btn.textContent = 'Оплатить';
+    if(state.screen!=='home' && state.screen!=='detail') goHome();
+  }, 1200);
+}
+
+/* ============================================================
+   CHAT
+============================================================ */
+function openChat(adId, matchLostId){
+  const ad = state.ads.find(a=>a.id===adId);
+  if(!ad) return;
+  state.detailId = adId;
+  const key = adId;
+  if(!state.chats[key]){
+    const greeting = matchLostId
+      ? 'Здравствуйте! Кажется, мы нашли вашу вещь. Опишите приметы, пожалуйста.'
+      : 'Здравствуйте! Пишу по объявлению «'+ad.title+'».';
+    state.chats[key] = [
+      {from:'them', text:greeting, time:Date.now()}
+    ];
+  }
+  renderChat(adId);
+  openModal('chatModal');
+}
+
+function renderChat(adId){
+  const box = $('#chatMessages');
+  const msgs = state.chats[adId] || [];
+  box.innerHTML = msgs.map(m=>{
+    const t = new Date(m.time).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="msg ${m.from==='me'?'me':'them'}">${esc(m.text)}<span class="msg-time">${t}</span></div>`;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendChat(){
+  const input = $('#chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const adId = state.detailId;
+  if(!state.chats[adId]) state.chats[adId] = [];
+  state.chats[adId].push({from:'me', text, time:Date.now()});
+  input.value = '';
+  renderChat(adId);
+  // auto-reply
+  setTimeout(()=>{
+    if(state.chats[adId]){
+      state.chats[adId].push({from:'them', text:'Спасибо! Проверю и отвечу в ближайшее время.', time:Date.now()});
+      renderChat(adId);
+    }
+  }, 900);
+}
+
+/* ============================================================
+   RESET
+============================================================ */
+function resetDemo(){
+  if(!confirm('Сбросить все объявления и вернуть демо-данные?')) return;
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  state.ads = JSON.parse(JSON.stringify(MOCK_DATA));
+  state.chats = {};
+  save();
+  renderFeed();
+  updateBadge();
+  toast('Демо-данные сброшены','success');
+}
+
+/* ============================================================
+   EVENT BINDING
+============================================================ */
+function bindEvents(){
+  // --- home: action buttons ---
+  $$('[data-go-form]').forEach(b=>{
+    b.addEventListener('click', ()=> goForm(b.dataset.goForm));
+  });
+
+  // --- home: filters ---
+  $('#typeFilterRow').addEventListener('click', e=>{
+    const btn = e.target.closest('[data-type-filter]');
+    if(!btn) return;
+    state.filterType = btn.dataset.typeFilter;
+    $$('#typeFilterRow .chip').forEach(c=>c.classList.toggle('active', c===btn));
+    renderFeed();
+  });
+  $('#transportFilterRow').addEventListener('click', e=>{
+    const btn = e.target.closest('[data-transport-filter]');
+    if(!btn) return;
+    state.filterTransport = btn.dataset.transportFilter;
+    $$('#transportFilterRow .chip').forEach(c=>c.classList.toggle('active', c===btn));
+    renderFeed();
+  });
+  $('#searchInput').addEventListener('input', e=>{
+    state.searchQuery = e.target.value;
+    renderFeed();
+  });
+
+  // --- home: feed click delegation ---
+  $('#feed').addEventListener('click', e=>{
+    const card = e.target.closest('[data-ad-id]');
+    if(card) goDetail(card.dataset.adId);
+  });
+
+  // --- home: smart match ---
+  $('#matchBtn').addEventListener('click', ()=>{
+    renderSmartMatch();
+    openModal('smartMatchModal');
+  });
+
+  // --- city ---
+  $('#cityBtn').addEventListener('click', ()=>{
+    toast('В демо доступен только Алматы','info');
+  });
+
+  // --- reset ---
+  $('#resetBtn').addEventListener('click', resetDemo);
+
+  // --- form ---
+  $('#formCloseBtn').addEventListener('click', goHome);
+  $('#formBack').addEventListener('click', ()=>{
+    if(state.formStep===1){ goHome(); }
+    else { state.formStep--; renderForm(); }
+  });
+  $('#formNext').addEventListener('click', formNext);
+
+  // type/category
+  $$('.type-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{ state.formData.type = b.dataset.type; renderForm(); });
+  });
+  $$('.cat-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{ state.formData.category = b.dataset.category; renderForm(); });
+  });
+  $$('.trans-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{ state.formData.transport = b.dataset.transport; renderForm(); });
+  });
+  // route hints
+  document.querySelectorAll('.hint-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      state.formData.route = chip.dataset.route;
+      $('#formRoute').value = chip.dataset.route;
+    });
+  });
+  // route & time sync
+  $('#formRoute').addEventListener('input', e=>{ state.formData.route = e.target.value; });
+  $('#formTime').addEventListener('change', e=>{ state.formData.timeAgo = parseFloat(e.target.value); });
+
+  // step-3 inputs sync
+  $('#formTitle').addEventListener('input', e=>{ state.formData.title = e.target.value; });
+  $('#formDesc').addEventListener('input', e=>{ state.formData.description = e.target.value; });
+  $('#formContact').addEventListener('input', e=>{ state.formData.contact = e.target.value; });
+  $('#formReward').addEventListener('change', e=>{ state.formData.reward = e.target.checked; });
+  $('#formControl').addEventListener('input', e=>{ state.formData.controlQuestion = e.target.value; });
+
+  // --- detail back ---
+  $('#detailBack').addEventListener('click', goHome);
+
+  // --- modals close ---
+  $$('[data-close]').forEach(b=>{
+    b.addEventListener('click', ()=> closeModal(b.dataset.close));
+  });
+  // click outside to close
+  $$('.modal').forEach(m=>{
+    m.addEventListener('click', e=>{ if(e.target===m) m.classList.remove('open'); });
+  });
+
+  // --- plans ---
+  $$('.plan').forEach(p=>{
+    p.addEventListener('click', ()=> selectPlan(p.dataset.plan));
+  });
+
+  // --- payment ---
+  $$('.pay-row button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      state.payMethod = b.dataset.pay;
+      $$('.pay-row button').forEach(x=>x.classList.toggle('active', x===b));
+    });
+  });
+  $('#payConfirm').addEventListener('click', confirmPayment);
+
+  // --- chat ---
+  $('#chatSend').addEventListener('click', sendChat);
+  $('#chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(); });
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+function init(){
+  injectIcons(document);
+  state.ads = load() || JSON.parse(JSON.stringify(MOCK_DATA));
+  save();
+  bindEvents();
+  renderFeed();
+  updateBadge();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
